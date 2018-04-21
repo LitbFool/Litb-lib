@@ -6,7 +6,7 @@ public class DBconnection {
 	
 	//创建一个本地的线程对象
 	private static final ThreadLocal<Connection> threadLocal = new ThreadLocal<>();
-	
+	//静态块
 	static{
 		try {
 			//加载mysql的驱动
