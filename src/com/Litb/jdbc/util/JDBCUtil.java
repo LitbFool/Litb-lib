@@ -1,6 +1,6 @@
 package com.Litb.jdbc.util;
 /**
- * 自己封装的mysql连接工具
+ * 鑷繁灏佽鐨刴ysql杩炴帴宸ュ叿
  * @author litongbin
  * 
  */

@@ -4,12 +4,12 @@ import java.sql.Connection;
 
 public class DBconnection {
 	
-	//´´½¨Ò»¸ö±¾µØµÄÏß³Ì¶ÔÏó
+	//åˆ›å»ºä¸€ä¸ªæœ¬åœ°çš„çº¿ç¨‹å¯¹è±¡
 	private static final ThreadLocal<Connection> threadLocal = new ThreadLocal<>();
 	
 	static{
 		try {
-			//¼ÓÔØmysqlµÄÇı¶¯
+			//åŠ è½½mysqlçš„é©±åŠ¨
 			Class.forName("com.mysql.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -17,11 +17,11 @@ public class DBconnection {
 	}
 	
 	/**
-	 * ¶¨Òå»ñÈ¡Êı¾İ¿âµÄÁ¬½Ó·½·¨
+	 * å®šä¹‰è·å–æ•°æ®åº“çš„è¿æ¥æ–¹æ³•
 	 * @return
 	 */
 	public Connection getConnction() {
-		//´Ó±¾µØÏß³ÌÖĞ»ñÈ¡Á¬½Ó¶ÔÏó
+		//ä»æœ¬åœ°çº¿ç¨‹ä¸­è·å–è¿æ¥å¯¹è±¡
 		Connection conn = threadLocal.get();
 		return null;
 		
