@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.runners.ParentRunner;
+
 /**
  * 自己封装的mysql连接库
  * @author litongbin
@@ -21,7 +23,7 @@ public class JDBCUtil extends DBconnection {
 	 * 定义一个可供外部调用的数据库查询方法
 	 * @param sql	预编译的sql语句
 	 * @param parameters	预编译的sql语句占位符对应的参数值
-	 * @return
+	 * @return 返回查询出来的数据源  List<Map<String, Object>>  一个map为一行
 	 */
 	public static List<Map<String, Object>> executeQuery(String sql, Object...parameters){
 		//存储表
@@ -73,7 +75,7 @@ public class JDBCUtil extends DBconnection {
 				//按从下到上的顺序一步一步关闭
 				rs.close();
 				pst.close();
-				conn.close();
+				colseConnection();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -81,4 +83,68 @@ public class JDBCUtil extends DBconnection {
 		//返回查询出来的table
 		return table;
 	}
+	
+	/**
+	 * 定义一个可供外部调用的数据库插入v,查询和删除方法
+	 * @param sql  sql语句 insert或者update
+	 * @param paramList	参数可有可无.最多只会处理paramList[0] 即最多只有一个.多的不做处理.
+	 * @return	返回int类型,影响了多少行.  如果没有paramList时返回1则为成功. 返回0为失败.   如果有paramList则返回影响了多少行.
+	 */
+	public static int executeBatch(String sql,List<Object[]>... paramList){
+		//定义返回的影响行数
+		int successSize = 0;
+		Connection conn = getConnction();
+		//创建预编译的对象
+		PreparedStatement pst = null;
+		try {
+			//设置手动提交事务
+			conn.setAutoCommit(false);
+			pst =conn.prepareStatement(sql);
+			//判断paramList是否有值,如果有则取第一个
+			if(paramList.length > 0){
+				//遍历paramList[0] 取出其中的object数组.
+				for (int i = 0; i < paramList[0].size(); i++) {
+					Object[] value = paramList[0].get(i);
+					//object[]数组中存入的为String[].将paramList[0].get(i)赋值给value后继续遍历value中的值.这里value是个数组
+					for (int j = 0; j < value.length; j++) {
+						//设置占位符对应的参数
+						pst.setObject(j+1, value[j]);
+					}
+					pst.addBatch();
+				}
+				//提交后返回一个array 数组.根据数组的length来判断影响了多少行
+				int[] ids = pst.executeBatch();
+				//如果受影响行数和参数 paramList[0].size()对应,则说明全部插入成功
+				if(ids.length == paramList[0].size()){
+					if (ids.length == 1) {
+						//更新操作的时候一个addBatch只会返回一个值.
+						successSize = ids[0];
+					}else{
+						successSize = ids.length;
+					}
+					conn.commit();
+				}else{
+					conn.rollback();
+				}
+			}else{	
+				//没有paramList所以没有占位符.直接提交.
+				pst.execute();
+				conn.commit();
+				successSize = 1;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally{
+			try {
+				//关闭资源
+				pst.close();
+				colseConnection();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		//返回影响数量.批量执行时返回影响数量.单条时返回1:成功
+		return successSize;
+	}
+
 }

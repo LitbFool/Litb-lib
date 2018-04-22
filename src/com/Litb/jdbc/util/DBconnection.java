@@ -15,6 +15,8 @@ public abstract class DBconnection {
 	private static final String URL = PropersiesResolver.getValue("jdbc.url");
 	private static final String USERNAME = PropersiesResolver.getValue("jdbc.username");
 	private static final String PASSWORD = PropersiesResolver.getValue("jdbc.password");
+	
+	
 	//创建一个本地的线程对象
 	private static final ThreadLocal<Connection> threadLocal = new ThreadLocal();
 	//静态块在类被加载的时候自动执行
@@ -42,7 +44,6 @@ public abstract class DBconnection {
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-			
 		}
 		return conn;
 	}
@@ -50,7 +51,7 @@ public abstract class DBconnection {
 	/**
 	 * 定义关闭方法
 	 */
-	protected void colseConnection(){
+	protected static void colseConnection(){
 		//从本地获取连接对象
 		Connection conn = threadLocal.get();
 		if (conn != null) {
